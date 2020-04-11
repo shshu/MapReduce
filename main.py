@@ -7,6 +7,7 @@ for the same URL and emits a hURL, total count i pair.
 import random
 from collections import Counter
 from functools import reduce
+from multiprocessing import Pool
 
 URLS = 'A aB bC cD dE eF fG gH hI iJ jK kL lM mN nO oP pQ qR rS sT tU uV vW wX xY yZ z'.split(' ')
 URL_ACSEESS = [random.choice(URLS) for _ in range(1000000)]
@@ -25,14 +26,15 @@ def reducer(cnt1, cnt2):
     cnt1.update(cnt2)
     return cnt1
 
-data_chunks = chunks(URL_ACSEESS, number_of_chunks=10)
-
-reduced = []
-for chunk in data_chunks:
+def mapper_chunk(chunk):
     mapped_chunk = map(mapper, chunk)
-    mapped_chunk = list(mapped_chunk)
-    reduced_chunk = reduce(reducer, mapped_chunk)
-    reduced.append(reduced_chunk)
+    return reduce(reducer, mapped_chunk)
+
+data_chunks = chunks(URL_ACSEESS, number_of_chunks=10)
+import time
+t = time.time()
+pool = Pool(8)
+reduced = pool.map(mapper_chunk, data_chunks)
 
 reduced = reduce(reducer, reduced)
-print(reduced)
+print(time.time()-t)
