@@ -25,8 +25,9 @@ def reducer(cnt1, cnt2):
     cnt1.update(cnt2)
     return cnt1
 
-data_chunks = chunks(URL_ACSEESS, number_of_chunks=10)
-
+data_chunks = chunks(URL_ACSEESS, number_of_chunks=30)
+import time
+t = time.time()
 reduced = []
 for chunk in data_chunks:
     mapped_chunk = map(mapper, chunk)
@@ -35,4 +36,4 @@ for chunk in data_chunks:
     reduced.append(reduced_chunk)
 
 reduced = reduce(reducer, reduced)
-print(reduced)
+print(time.time()-t)
