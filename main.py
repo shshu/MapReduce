@@ -3,13 +3,15 @@ import time
 
 from collections import Counter
 from functools import reduce
+from multiprocessing import Pool
 
-URLS = 'A aB bC cD dE eF fG gH hI iJ jK kL lM mN nO oP pQ qR rS sT tU uV vW wX xY yZ z'.split(
+URLS = 'A aB bC cD dE eF fG gH hI iJ jK kL lM mN nO oP pQ qR rS sT tU V W X Y Z '.split(
     ' ')
 URL_ACSEESS = [random.choice(URLS) for _ in range(1000000)]
 
 
 def chunks(lst, number_of_chunks):
+    """Yield successive chunk from lst."""
     size = len(lst)
     num = int(size / number_of_chunks)
     for i in range(0, size, num):
@@ -25,14 +27,15 @@ def reducer(cnt1, cnt2):
     return cnt1
 
 
+def mapper_chunk(chunk):
+    mapped_chunk = map(mapper, chunk)
+    return reduce(reducer, mapped_chunk)
+
+
 def main():
     data_chunks = chunks(URL_ACSEESS, number_of_chunks=30)
-    reduced = []
-    for chunk in data_chunks:
-        mapped_chunk = map(mapper, chunk)
-        reduced_chunk = reduce(reducer, mapped_chunk)
-        reduced.append(reduced_chunk)
-
+    pool = Pool(8)
+    reduced = pool.map(mapper_chunk, data_chunks)
     reduced = reduce(reducer, reduced)
 
 
